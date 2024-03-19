@@ -2,8 +2,6 @@ import pygame
 import numpy as np
 import RacingEnvironment
 
-from ddqn_keras import DDQNAgent
-
 NUM_EPISODES=10000
 
 racingGame = RacingEnvironment.RacingEnvironment()
