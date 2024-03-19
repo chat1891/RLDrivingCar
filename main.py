@@ -9,7 +9,7 @@ NUM_EPISODES=10000
 racingGame = RacingEnvironment.RacingEnvironment()
 racingGame.fps=60
 
-#-----------
+#---------
 REPLACE_TARGET = 10
 
 
@@ -32,7 +32,7 @@ def RunRacingGame():
             score = 0
             counter = 0
 
-            #new
+            
             #action = ddqn_agent.choose_action(observation)
             action = 1
             observation_, reward, done = racingGame.step(action)
