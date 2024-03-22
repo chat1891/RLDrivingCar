@@ -64,7 +64,7 @@ class Car:
         
         self.raceTrackMap = raceTrackImage
         
-        self.angle = math.radians(15)
+        self.angle = math.radians(0)
         self.drivingAngle = self.angle
         self.velocity = 0
         self.deltaVelocity = 1
@@ -120,18 +120,18 @@ class Car:
             self.turn(1)
         elif actionChoice == 4:
             self.acceleration(-self.deltaVelocity)
-        elif actionChoice == 5:
-            self.acceleration(-self.deltaVelocity)
-            self.turn(1)
-        elif actionChoice == 6:
-            self.acceleration(-self.deltaVelocity)
-            self.turn(-1)
-        elif actionChoice == 7:
-            self.acceleration(self.deltaVelocity)
-            self.turn(-1)
-        elif actionChoice == 8:
-            self.acceleration(self.deltaVelocity)
-            self.turn(1)
+        # elif actionChoice == 5:
+        #     self.acceleration(-self.deltaVelocity)
+        #     self.turn(1)
+        # elif actionChoice == 6:
+        #     self.acceleration(-self.deltaVelocity)
+        #     self.turn(-1)
+        # elif actionChoice == 7:
+        #     self.acceleration(self.deltaVelocity)
+        #     self.turn(-1)
+        # elif actionChoice == 8:
+        #     self.acceleration(self.deltaVelocity)
+        #     self.turn(1)
         pass
 
     def update(self):
@@ -172,11 +172,11 @@ class Car:
         self.isAlive = True
         # check the 4 corners on rectangle
         # if the corner collide with the border then crash
-        # if raceMap.get_at((int(self.bottomLeft.x),int(self.bottomLeft.y))) == BOUNDARY_COLOR \
-        # or raceMap.get_at((int(self.bottomRight.x),int(self.bottomRight.y))) == BOUNDARY_COLOR \
-        # or raceMap.get_at((int(self.topRight.x),int(self.topRight.y))) == BOUNDARY_COLOR \
-        # or raceMap.get_at((int(self.topLeft.x),int(self.topLeft.y))) == BOUNDARY_COLOR:
-        #     self.isAlive = False
+        if raceMap.get_at((int(self.bottomLeft.x),int(self.bottomLeft.y))) == BOUNDARY_COLOR \
+        or raceMap.get_at((int(self.bottomRight.x),int(self.bottomRight.y))) == BOUNDARY_COLOR \
+        or raceMap.get_at((int(self.topRight.x),int(self.topRight.y))) == BOUNDARY_COLOR \
+        or raceMap.get_at((int(self.topLeft.x),int(self.topLeft.y))) == BOUNDARY_COLOR:
+            self.isAlive = False
             
     def calScore(self, goal):
 
@@ -185,7 +185,8 @@ class Car:
     
     def rayCast(self):
         self.rayCasts=[]
-        for deg in range(-90, 120, 45):
+        rayAngles = [15,-15,35,-35,55,-55,-90,90,120,-120]
+        for deg in rayAngles:
             self.CalculateRayCast(deg,self.raceTrackMap)
         #ray1 = (self.x, self.y, self.drivingAngle)
         #ray2 = Ray(self.x, self.y, self.soll_angle - math.radians(30))
