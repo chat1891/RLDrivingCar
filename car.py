@@ -6,6 +6,10 @@ SCREEN_HEIGHT = 600#1080
 
 BOUNDARY_COLOR = (0, 0, 0, 255)
 
+CHECKPOINT_REWARD=1
+ALIVE_REWARD=0
+DIE_PENALTY=-1
+
 #coordinates
 class Coord:
     def __init__(self,ix,iy):
@@ -96,6 +100,8 @@ class Car:
         
         self.rayCasts = []
         
+        self.score =0
+        
     def acceleration(self,deltaVelo):
         
         if self.velocity>self.maxVelocity:
@@ -147,8 +153,6 @@ class Car:
         self.position.x = self.x
         self.position.y = self.y
         self.rectangle.center = self.x, self.y
-        
-        
 
         self.corner1 = Coord(self.corner1.x + self.velocityX, self.corner1.y + self.velocityY)
         self.corner2 = Coord(self.corner2.x + self.velocityX, self.corner2.y + self.velocityY)
@@ -178,16 +182,52 @@ class Car:
         or raceMap.get_at((int(self.topLeft.x),int(self.topLeft.y))) == BOUNDARY_COLOR:
             self.isAlive = False
             
-    def calScore(self, goal):
-
-
-        return(False)
+    def calScore(self, checkPoint):
+        #Separating Axis Theorem a method used in computational geometry to determine if two convex shapes intersect
+        x1 = self.topLeft.x
+        y1 = self.topLeft.y
+        x2 = self.topRight.x
+        y2 = self.topRight.y
+        
+        x3 = checkPoint.x1
+        y3 = checkPoint.y1
+        x4 = checkPoint.x2
+        y4 = checkPoint.y2
+        
+        # Calculate denominators
+        den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+        if den == 0:
+            return False  # Lines are parallel
+        
+        # Calculate numerators
+        t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den
+        u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den
+        
+        # Check if intersection bwteen 0 and 1
+        if 0 <= t <= 1 and 0 <= u <= 1:
+            # pt = math.floor(x1 + t * (x2 - x1)), math.floor(y1 + t * (y2 - y1))
+            # d = getDistance(Coord(self.x, self.y), Coord(pt[0], pt[1]))
+            # if d < 20:
+                #self.score+= CHECKPOINT_REWARD
+            return True
+        else:
+            return False
     
     def rayCast(self):
         self.rayCasts=[]
         rayAngles = [15,-15,35,-35,55,-55,-90,90,120,-120]
         for deg in rayAngles:
             self.CalculateRayCast(deg,self.raceTrackMap)
+        
+        #distances are observation of the car, it is state
+        distances = []
+        for ray in self.rayCasts:
+            curDistance = ray.distance
+            #revert the distance to 0 is far, 1 is close
+            distances.append((1000-curDistance)/1000)
+        
+        distances.append(self.velocity / self.maxVelocity)
+        return distances
         #ray1 = (self.x, self.y, self.drivingAngle)
         #ray2 = Ray(self.x, self.y, self.soll_angle - math.radians(30))
         
@@ -217,6 +257,37 @@ class Car:
         
     def draw(self, window):
         window.blit(self.scaledImage, self.rectangle)
+        
+    def reset(self):
+
+        self.x = 417
+        self.y = 530
+        self.position = Coord(self.x,self.y) #center #[543,1000]#[830, 920]
+        self.velocityX = 0
+        self.velocityY = 0
+        self.velocity = 0
+        self.angle = math.radians(0)
+        self.drivingAngle= self.angle
+        self.score = 0
+
+
+        self.p1 = self.pt1
+        self.p2 = self.pt2
+        self.p3 = self.pt3
+        self.p4 = self.pt4
+        
+        #car 4 points
+        self.corner1 = Coord(self.position.x - self.carWidth / 2, self.position.y - self.carHeight / 2)
+        self.corner2 = Coord(self.position.x + self.carWidth / 2, self.position.y - self.carHeight / 2)
+        self.corner3 = Coord(self.position.x + self.carWidth / 2, self.position.y + self.carHeight / 2)
+        self.corner4 = Coord(self.position.x - self.carWidth / 2, self.position.y + self.carHeight / 2)
+
+        self.bottomLeft = self.corner1 #point bottom left
+        self.bottomRight = self.corner2 #point bottom right
+        self.topRight = self.corner3 #point top right
+        self.topLeft = self.corner4 #point top
+        
+        self.isAlive = True
         
         
             

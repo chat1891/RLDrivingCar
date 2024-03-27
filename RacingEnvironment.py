@@ -2,10 +2,6 @@ import pygame
 import car
 import checkPoints
 
-GOAL_REWARD = 1
-CUR_REWARD = 0
-PENALTY = -1
-
 class RacingEnvironment:
     def __init__(self):
         pygame.init()
@@ -39,7 +35,7 @@ class RacingEnvironment:
         done = False
         self.car.action(action)
         self.car.update()
-        reward = CUR_REWARD
+        reward = car.ALIVE_REWARD
 
         idx = 1
         for checkpoint in self.checkPoints:
@@ -50,7 +46,7 @@ class RacingEnvironment:
                 if self.car.calScore(checkpoint):
                     checkpoint.isTriggered = False
                     self.checkPoints[idx+1].isTriggered = True
-                    reward += GOAL_REWARD
+                    reward += car.CHECKPOINT_REWARD
                     break
 
             idx = idx + 1
@@ -58,7 +54,7 @@ class RacingEnvironment:
         #Check collision
         self.car.evalCollision(self.raceTrack)
         if not self.car.isAlive:
-            reward += PENALTY
+            reward += car.DIE_PENALTY
             done = True
 
         new_state = self.car.rayCast()
@@ -69,10 +65,9 @@ class RacingEnvironment:
         return new_state, reward, done
     
     
-    def render(self, action):
+    def render(self):
         drawRayCast = True
         drawCheckPoints = True
-        
         
         #self.gameScreen.fill((0, 0, 0))
         #self.gameScreen.blit(self.raceTrack, (self.raceTrack_rect))       
@@ -91,6 +86,9 @@ class RacingEnvironment:
         self.car = car.Car(417, 530,self.raceTrack)
         self.checkPoints = checkPoints.getCheckPoints()
         self.game_reward = 0
+        
+        obs, reward, done = self.step(0)
+        return obs
             
 
             
