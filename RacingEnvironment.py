@@ -41,18 +41,19 @@ class RacingEnvironment:
         self.car.update()
         reward = CUR_REWARD
 
-        index = 1
+        idx = 1
         for checkpoint in self.checkPoints:
             
-            if index > len(self.checkPoints):
-                index = 1
+            if idx > len(self.checkPoints):
+                idx = 1
             if checkpoint.isTriggered:
                 if self.car.calScore(checkpoint):
                     checkpoint.isTriggered = False
-                    self.checkPoints[index-2].isTriggered = True
+                    self.checkPoints[idx+1].isTriggered = True
                     reward += GOAL_REWARD
+                    break
 
-            index = index + 1
+            idx = idx + 1
 
         #Check collision
         self.car.evalCollision(self.raceTrack)
@@ -68,7 +69,7 @@ class RacingEnvironment:
         return new_state, reward, done
     
     
-    def drawGameEnv(self, action):
+    def render(self, action):
         drawRayCast = True
         drawCheckPoints = True
         
@@ -84,6 +85,13 @@ class RacingEnvironment:
                 cp.draw(self.gameScreen)
         
         pygame.display.update()
+        
+    def reset(self):
+        self.gameScreen.fill((0, 0, 0))
+        self.car = car.Car(417, 530,self.raceTrack)
+        self.checkPoints = checkPoints.getCheckPoints()
+        self.game_reward = 0
+            
 
             
         
