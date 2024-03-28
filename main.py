@@ -1,57 +1,79 @@
 import pygame
 import numpy as np
 import RacingEnvironment
+from DQN_test import DQN_test
 
 NUM_EPISODES=10000
 
+#create game env
 racingGame = RacingEnvironment.RacingEnvironment()
 racingGame.fps=60
+
+#create AI agent
+dqn = DQN_test()
 
 #---------
 REPLACE_TARGET = 10
 
-
-def RunRacingGame():
-    
-    for e in range(NUM_EPISODES):    
+def testEnv():
+    racingGame = RacingEnvironment.RacingEnvironment()
+    while True:  
         observation_, reward, done = racingGame.step(0)
-        observation = np.array(observation_)
+        racingGame.render(1)       
 
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    return
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        pygame.quit()
-                        return
-                
-            done = False
-            score = 0
-            counter = 0
+# def trainDQN():
+#     env, test_env, buf, Q, Qt, OPT = dqn.create_everything()
+#     # epsilon greedy exploration
+#     dqn.EPSILON = dqn.STARTING_EPSILON
+#     testRs = []
+#     last25testRs = []
+#     print("Training:")
+    
+#     for epi in range(NUM_EPISODES):    
+#         #rest the game??
+#         env.reset()
+#         done =False
+#         #if no reward collected in 150 ticks, it dies
+#         autoDieCounter = 0
+#         currentReward=0
+#         obs_new, reward, done = env.step(0)
+#         obs= np.array(obs_new)
+        
+#         isRender = False
+#         #render every 5 episode
+#         if epi%5==0:
+#             isRender = True
 
+#         while not done:
+#             for event in pygame.event.get():
+#                 if event.type == pygame.QUIT:
+#                     return
+#                 elif event.type == pygame.KEYDOWN:
+#                     if event.key == pygame.K_ESCAPE:
+#                         pygame.quit()
+#                         return
             
-            #action = ddqn_agent.choose_action(observation)
-            action = 1
-            observation_, reward, done = racingGame.step(action)
-            observation_ = np.array(observation_)
+#             action = dqn.policy(env, obs) #choose an action
+#             obs_new, reward, done = env.step(action)
+#             obs_new= np.array(obs_new)
 
-            if reward == 0:
-                counter += 1
-                if counter > 100:
-                    done = True
-            else:
-                counter = 0
 
-            score += reward
+#             #if no reward collected, after counter increased to 150, it dies
+#             if reward == 0:
+#                 autoDieCounter += 1
+#                 if autoDieCounter > 150:
+#                     done = True
+#             else:
+#                 autoDieCounter = 0
 
-            observation = observation_
+#             score += reward
 
-            racingGame.drawGameEnv(action)  
-            #pygame.display.flip()
-              
-      
+#             observation = obs_new
+
+#             racingGame.render(action)    
+
+def testTrain():
+    dqn.train()
 
 if __name__ == "__main__":
-    RunRacingGame()
-      
+    testTrain()
