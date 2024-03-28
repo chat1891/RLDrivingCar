@@ -47,6 +47,7 @@ class RacingEnvironment:
                     checkpoint.isTriggered = False
                     self.checkPoints[idx+1].isTriggered = True
                     reward += car.CHECKPOINT_REWARD
+                    #print("reward:" + str(reward))
                     break
 
             idx = idx + 1
@@ -81,12 +82,36 @@ class RacingEnvironment:
         
         pygame.display.update()
         
+    def render2(self,action):
+        drawRayCast = True
+        drawCheckPoints = True
+        
+        #self.gameScreen.fill((0, 0, 0))
+        #self.gameScreen.blit(self.raceTrack, (self.raceTrack_rect))       
+        self.gameScreen.blit(self.raceTrack, (self.raceTrack_rect))   
+        self.car.draw(self.gameScreen)
+        if(drawRayCast):
+            self.car.drawRayCasts(self.gameScreen)
+        if drawCheckPoints:
+            for cp in self.checkPoints:
+                cp.draw(self.gameScreen)
+        
+        pygame.display.update()
+        
     def reset(self):
         self.gameScreen.fill((0, 0, 0))
         self.car = car.Car(417, 530,self.raceTrack)
         self.checkPoints = checkPoints.getCheckPoints()
         self.game_reward = 0
         
+        # obs, reward, done = self.step(0)
+        # return obs
+    
+    def FirstStep(self):
+        self.gameScreen.fill((0, 0, 0))
+        self.car = car.Car(417, 530,self.raceTrack)
+        self.checkPoints = checkPoints.getCheckPoints()
+        self.game_reward = 0
         obs, reward, done = self.step(0)
         return obs
             

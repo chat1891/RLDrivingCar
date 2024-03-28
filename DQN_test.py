@@ -23,7 +23,7 @@ class DQN_test(object):
     TRAIN_AFTER_EPISODES = 10   # Just collect episodes for these many episodes
     TRAIN_EPOCHS = 2       # Train for these many epochs every time
     BUFSIZE = 10000         # Replay buffer size
-    EPISODES = 300          # Total number of episodes to learn over
+    EPISODES = 10000          # Total number of episodes to learn over
     TEST_EPISODES = 1       # Test episodes after every train episode
     HIDDEN = 512            # Hidden nodes
     TARGET_UPDATE_FREQ = 10 # Target network update frequency
@@ -82,8 +82,8 @@ class DQN_test(object):
     def policy(self,env, obs):
 
         global EPSILON, Q
-        obs = np.array(obs)
-        obs = obs[np.newaxis, :]
+        # obs = np.array(obs)
+        # obs = obs[np.newaxis, :]
         #?????????
         # if obs is None:
         #     raise ValueError("Observation (obs) is None, which indicates an error in the environment or data retrieval.")
@@ -160,6 +160,7 @@ class DQN_test(object):
 
             # Play an episode and log episodic reward
             S, A, R = utils.envs.play_episode_rb(env, self.policy, buf)
+            #env.reset()
             obs, reward, done = env.step(0)
 
             # Train after collecting sufficient experience
@@ -172,7 +173,7 @@ class DQN_test(object):
             # Evaluate for TEST_EPISODES number of episodes
             Rews = []
             for epj in range(self.TEST_EPISODES):
-                S, A, R = utils.envs.play_episode(test_env, self.policy, render = False)
+                S, A, R = utils.envs.play_episode(test_env, self.policy, render = True)
                 Rews += [sum(R)]
             testRs += [sum(Rews)/self.TEST_EPISODES]
 

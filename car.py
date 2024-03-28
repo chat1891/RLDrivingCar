@@ -121,8 +121,10 @@ class Car:
         elif actionChoice == 1:
             self.acceleration(self.deltaVelocity)
         elif actionChoice == 2:
+            self.acceleration(self.deltaVelocity)
             self.turn(-1)
         elif actionChoice == 3:
+            self.acceleration(self.deltaVelocity)
             self.turn(1)
         elif actionChoice == 4:
             self.acceleration(-self.deltaVelocity)
