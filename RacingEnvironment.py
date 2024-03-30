@@ -40,14 +40,14 @@ class RacingEnvironment:
         idx = 1
         for checkpoint in self.checkPoints:
             
-            if idx > len(self.checkPoints):
+            if idx >= len(self.checkPoints):
                 idx = 1
             if checkpoint.isTriggered:
                 if self.car.calScore(checkpoint):
                     checkpoint.isTriggered = False
-                    self.checkPoints[idx+1].isTriggered = True
+                    self.checkPoints[idx].isTriggered = True
                     reward += car.CHECKPOINT_REWARD
-                    #print("reward:" + str(reward))
+                    print("reward:" + str(reward))
                     break
 
             idx = idx + 1
@@ -67,6 +67,12 @@ class RacingEnvironment:
     
     
     def render(self):
+        
+        #pygame.time.delay(10)
+
+        self.clock = pygame.time.Clock()
+        #self.gameScreen.fill((0, 0, 0))
+        
         drawRayCast = True
         drawCheckPoints = True
         
@@ -76,11 +82,14 @@ class RacingEnvironment:
         self.car.draw(self.gameScreen)
         if(drawRayCast):
             self.car.drawRayCasts(self.gameScreen)
+            
         if drawCheckPoints:
             for cp in self.checkPoints:
                 cp.draw(self.gameScreen)
-        
+        self.car.draw4corners(self.gameScreen)
+        self.clock.tick(self.fps)
         pygame.display.update()
+        #pygame.display.flip()
         
     def render2(self,action):
         drawRayCast = True
@@ -96,6 +105,7 @@ class RacingEnvironment:
             for cp in self.checkPoints:
                 cp.draw(self.gameScreen)
         
+        #self.clock.tick(self.fps)
         pygame.display.update()
         
     def reset(self):

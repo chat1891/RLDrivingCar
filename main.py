@@ -94,7 +94,7 @@ def testddqn():
 
         gtime = 0 # set game time back to 0
         
-        renderFlag = False # if you want to render every episode set to true
+        renderFlag = True # if you want to render every episode set to true
 
         if e % 10 == 0 and e > 0: # render every 10 episodes
             renderFlag = True
@@ -129,7 +129,7 @@ def testddqn():
                 done = True
 
             if renderFlag:
-                racingGame.render2(action)
+                racingGame.render()
 
         eps_history.append(ddqn_agent.epsilon)
         ddqn_scores.append(score)
@@ -149,7 +149,42 @@ def testddqn():
 
 def testTrain():
     dqn.train()
+    
+def keyBoardDriveControl():
+    running = True
+    clock = pygame.time.Clock()
+    done = False
+    # In your game loop
+    #clock.tick(60)  # Caps the frame rate at 60 FPS
+    env = RacingEnvironment.RacingEnvironment()
+    env.fps=60
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        
+        if done:
+            env.reset()   
+            done = False     
+        # Get pressed keys
+        keys = pygame.key.get_pressed()
+
+        # Move the car based on key presses
+        if keys[pygame.K_LEFT]:
+            new_state, reward, done = env.step(3)
+        if keys[pygame.K_RIGHT]:
+            new_state, reward, done = env.step(4)
+        if keys[pygame.K_UP]:
+            new_state, reward, done = env.step(1)
+        if keys[pygame.K_DOWN]:
+            new_state, reward, done= env.step(2)
+        if keys[pygame.K_1]:
+            new_state, reward, done = env.reset()
+        env.render()  
+        #clock.tick(60)
+        
 
 if __name__ == "__main__":
+    #keyBoardDriveControl()
     #testTrain()
     testddqn()

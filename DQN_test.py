@@ -69,7 +69,7 @@ class DQN_test(object):
             torch.nn.Linear(self.HIDDEN, self.HIDDEN), torch.nn.ReLU(),
             torch.nn.Linear(self.HIDDEN, self.ACT_N)
         ).to(self.DEVICE)
-        OPT = torch.optim.Adam(Q.parameters(), lr = self.LEARNING_RATE)
+        OPT = torch.optim.Adam(self.Q.parameters(), lr = self.LEARNING_RATE)
         return env, test_env, buf, Q, Qt, OPT
         #return self.gameEnv, buf, Q, Qt, OPT
 
@@ -144,43 +144,49 @@ class DQN_test(object):
     def train(self,seed=1):
 
         global EPSILON, Q
-        print("Seed=%d" % seed)
+        #print("Seed=%d" % seed)
 
         # Create environment, buffer, Q, Q target, optimizer
         env, test_env, buf, Q, Qt, OPT = self.create_everything(seed)
 
         # epsilon greedy exploration
         EPSILON = self.STARTING_EPSILON
-
+        
         testRs = []
         last25testRs = []
         print("Training:")
         pbar = tqdm.trange(self.EPISODES)
         for epi in pbar:
+            done = False
+            env.reset()
+            while not done:
+                # Play an episode and log episodic reward
+                S, A, R = utils.envs.play_episode_rb(env, self.policy, buf)
+                #env.reset()
+                obs, reward, done = env.step(0)
 
-            # Play an episode and log episodic reward
-            S, A, R = utils.envs.play_episode_rb(env, self.policy, buf)
-            #env.reset()
-            obs, reward, done = env.step(0)
+                # Train after collecting sufficient experience
+                if epi >= self.TRAIN_AFTER_EPISODES:
 
-            # Train after collecting sufficient experience
-            if epi >= self.TRAIN_AFTER_EPISODES:
+                    # Train for TRAIN_EPOCHS
+                    for tri in range(self.TRAIN_EPOCHS):
+                        self.update_networks(epi, buf, Q, Qt, OPT)
 
-                # Train for TRAIN_EPOCHS
-                for tri in range(self.TRAIN_EPOCHS):
-                    self.update_networks(epi, buf, Q, Qt, OPT)
+                # Evaluate for TEST_EPISODES number of episodes
+                Rews = []
+                for epj in range(self.TEST_EPISODES):
+                    S, A, R = utils.envs.play_episode(test_env, self.policy, render = True)
+                    Rews += [sum(R)]
+                testRs += [sum(Rews)/self.TEST_EPISODES]
+                #print("---------------testRs: " + str(testRs))
 
-            # Evaluate for TEST_EPISODES number of episodes
-            Rews = []
-            for epj in range(self.TEST_EPISODES):
-                S, A, R = utils.envs.play_episode(test_env, self.policy, render = True)
-                Rews += [sum(R)]
-            testRs += [sum(Rews)/self.TEST_EPISODES]
-
-            # Update progress bar
-            last25testRs += [sum(testRs[-25:])/len(testRs[-25:])]
-            pbar.set_description("R25(%g)" % (last25testRs[-1]))
-            env.render()  
+                # Update progress bar
+                last25testRs += [sum(testRs[-25:])/len(testRs[-25:])]
+                pbar.set_description("R25(%g)" % (last25testRs[-1]))
+                #print("---------------------last25testRs[-1]: " + str(last25testRs[-1]))
+                env.render()  
+            if epi%10==0 and epi>10:
+                self.save_model('dqn_model.pth')
 
         # Close progress bar, environment
         pbar.close()
@@ -196,10 +202,23 @@ class DQN_test(object):
         plt.plot(range(len(mean)), mean, color=color, label=label)
         plt.fill_between(range(len(mean)), np.maximum(mean-std, 0), np.minimum(mean+std,200), color=color, alpha=0.3)
 
-    def runTest(self):
-        defaultTargetUpdateFreq = 10
-        TARGET_UPDATE_FREQ_LIST = [1,5,10,50,100]
-        colors = ['r','g','b','black','gray']
-        for e in range(self.EPISODES):
+    # def runTest(self):
+    #     defaultTargetUpdateFreq = 10
+    #     TARGET_UPDATE_FREQ_LIST = [1,5,10,50,100]
+    #     colors = ['r','g','b','black','gray']
+    #     for e in range(self.EPISODES):
+    #         self.train()
+    #         if e%10==0 and e>10:
+    #             self.save_model('dqn_model.pth')
             
-            self.train()
+            
+    def save_model(self, filepath='dqn_model.pth'):
+        global EPSILON, Q
+        torch.save(Q.state_dict(), filepath)
+        #print(f'Model saved to {filepath}')
+    
+    def load_model(self, filepath='dqn_model.pth'):
+        global EPSILON, Q
+        Q.load_state_dict(torch.load(filepath, map_location=self.DEVICE))
+        #self.update(self.Qt, self.Q)
+        print(f'Model loaded from {filepath}')
