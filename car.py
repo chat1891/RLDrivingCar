@@ -24,11 +24,11 @@ class Line:
 def getDistance(point1, point2):
     return(((point1.x - point2.x)**2 + (point1.y - point2.y)**2)**0.5)
 
-def rotation(startPt,curPoint,turnAngle):
+def rotation(origin,curPoint,turnAngle):
     #rotate based on the origin startPt
     #2D rotation matrix
-    rotatedX = startPt.x + math.cos(turnAngle) * (curPoint.x - startPt.x) - math.sin(turnAngle) * (curPoint.y - startPt.y)
-    rotatedY = startPt.y + math.sin(turnAngle) * (curPoint.x - startPt.x) + math.cos(turnAngle) * (curPoint.y - startPt.y)
+    rotatedX = origin.x + math.cos(turnAngle) * (curPoint.x - origin.x) - math.sin(turnAngle) * (curPoint.y - origin.y)
+    rotatedY = origin.y + math.sin(turnAngle) * (curPoint.x - origin.x) + math.cos(turnAngle) * (curPoint.y - origin.y)
     rotatedPoint = Coord(rotatedX, rotatedY)
     return rotatedPoint
 
@@ -53,9 +53,9 @@ class Ray:
 class Car:
     def __init__(self, ix, iy, raceTrackImage):
         #load car image
-        self.loadedImage = pygame.image.load('car3.png').convert()
-        self.carWidth = 15
-        self.carHeight = 40
+        self.loadedImage = pygame.image.load('car5.png').convert()
+        self.carWidth = 40
+        self.carHeight = 15
         #scaled_size = (self.loadedImage.get_width() // 10, self.loadedImage.get_height() // 10)
         self.scaledOrigImage = pygame.transform.scale(self.loadedImage, (self.carWidth,self.carHeight))
         self.scaledImage = self.scaledOrigImage   #need to have a image for rotation reference
@@ -71,8 +71,8 @@ class Car:
         self.angle = math.radians(0)
         self.drivingAngle = self.angle
         self.velocity = 0
-        self.deltaVelocity = 1
-        self.maxVelocity = 20
+        self.deltaVelocity = 0.25
+        self.maxVelocity = 15
         
         self.velocityX = 0
         self.velocityY = 0
@@ -95,24 +95,44 @@ class Car:
         self.bottomRight = self.corner2 #point bottom right
         self.topRight = self.corner3 #point top right
         self.topLeft = self.corner4 #point top
-        
+        #self.get_rectangle_corners()
         self.isAlive = True
         
         self.rayCasts = []
         
         self.score =0
+    
+    # def get_rectangle_corners(self):
+    #     # Top left corner
+    #     top_right = (self.rectangle.center[0]+self.rectangle.width/2, self.rectangle.center[1]+self.rectangle.height/2)
         
+    #     # Top right corner
+    #     top_left = (self.rectangle.center[0]+self.rectangle.width/2, self.rectangle.center[1]-self.rectangle.height/2)
+        
+    #     # Bottom left corner
+    #     bottom_right = (self.rectangle.center[0]-self.rectangle.width/2, self.rectangle.center[1]+self.rectangle.height/2)
+        
+    #     # Bottom right corner
+    #     bottom_left = (self.rectangle.center[0]-self.rectangle.width/2, self.rectangle.center[1]-self.rectangle.height/2)
+        
+    #     self.bottomRight=Coord(bottom_right[0],bottom_right[1])
+    #     self.bottomLeft=Coord(bottom_left[0],bottom_left[1])
+        
+    #     self.topLeft=Coord(top_left[0],top_left[1])
+    #     self.topRight=Coord(top_right[0],top_right[1])
+    
+    #     return top_left, top_right, bottom_left, bottom_right  
     def acceleration(self,deltaVelo):
-        
-        if self.velocity>self.maxVelocity:
-            self.velocity = self.maxVelocity
-        elif self.velocity < -self.maxVelocity:
-            self.velocity = -self.maxVelocity
-        else:
-            self.velocity = self.velocity+deltaVelo
+        self.velocity=deltaVelo
+        # if self.velocity>self.maxVelocity:
+        #     self.velocity = self.maxVelocity
+        # elif self.velocity < -self.maxVelocity:
+        #     self.velocity = -self.maxVelocity
+        # else:
+        #     self.velocity = self.velocity+deltaVelo
     
     def turn(self, turnDir):
-        self.drivingAngle += math.radians(15) * turnDir
+        self.drivingAngle -= math.radians(10) * turnDir
         
         
     def action(self,actionChoice):
@@ -121,13 +141,13 @@ class Car:
         elif actionChoice == 1:
             self.acceleration(self.deltaVelocity)
         elif actionChoice == 2:
-            self.acceleration(self.deltaVelocity)
-            self.turn(-1)
+            self.acceleration(-self.deltaVelocity)            
         elif actionChoice == 3:
             self.acceleration(self.deltaVelocity)
             self.turn(1)
         elif actionChoice == 4:
             self.acceleration(-self.deltaVelocity)
+            self.turn(-1)
         # elif actionChoice == 5:
         #     self.acceleration(-self.deltaVelocity)
         #     self.turn(1)
@@ -145,7 +165,10 @@ class Car:
     def update(self):
         
         self.angle = self.drivingAngle
-        rotateCoord = rotation(Coord(0,0), Coord(0,self.velocity), self.angle)
+        # Normalize the angle to be within -π to π or 0 to 2π range
+        #self.angle = self.angle % (2 * math.pi)
+        #new velocity vector
+        rotateCoord = rotation(Coord(0,0), Coord(self.velocity,0), self.angle)
         self.velocityX=rotateCoord.x
         self.velocityY = rotateCoord.y
 
@@ -162,17 +185,11 @@ class Car:
         self.corner4 = Coord(self.corner4.x + self.velocityX, self.corner4.y + self.velocityY)
 
         self.bottomLeft ,self.bottomRight ,self.topLeft ,self.topRight  = rotateCorners(self.corner1, self.corner2, self.corner3, self.corner4, self.drivingAngle)
-
-        self.scaledImage = pygame.transform.rotate(self.scaledOrigImage, 90 - self.drivingAngle * 180 / math.pi)
+        self.scaledImage = pygame.transform.rotate(self.scaledOrigImage, 360-self.drivingAngle * 180 / math.pi)
         x, y = self.rectangle.center  
         self.rectangle = self.scaledImage.get_rect()  
         self.rectangle.center = (x, y)
         
-        # self.topRight = max(self.topRight, 20)
-        # self.topRight = min(self.topRight, SCREEN_WIDTH - 120)
-        
-        # self.topLeft = max(self.topRight, 20)
-        # self.topLeft = min(self.topRight, SCREEN_WIDTH - 120)
     
     def evalCollision(self, raceMap):
         self.isAlive = True
@@ -256,6 +273,13 @@ class Car:
         for ray in self.rayCasts:
             pygame.draw.line(screen, (0, 255, 0), (self.position.x,self.position.y), (ray.x,ray.y), 1)
             pygame.draw.circle(screen, (0, 255, 0), (ray.x,ray.y), 5)
+    
+    def draw4corners(self, screen):
+        
+        pygame.draw.circle(screen, (0, 0, 255), (self.topLeft.x,self.topLeft.y), 3)
+        pygame.draw.circle(screen, (0, 255, 0), (self.topRight.x,self.topRight.y), 3)
+        pygame.draw.circle(screen, (255, 0, 255), (self.bottomLeft.x,self.bottomLeft.y), 3)
+        pygame.draw.circle(screen, (0, 255, 255), (self.bottomRight.x,self.bottomRight.y), 3)
         
     def draw(self, window):
         window.blit(self.scaledImage, self.rectangle)
@@ -277,7 +301,7 @@ class Car:
         self.p2 = self.pt2
         self.p3 = self.pt3
         self.p4 = self.pt4
-        
+        #self.get_rectangle_corners()
         #car 4 points
         self.corner1 = Coord(self.position.x - self.carWidth / 2, self.position.y - self.carHeight / 2)
         self.corner2 = Coord(self.position.x + self.carWidth / 2, self.position.y - self.carHeight / 2)
