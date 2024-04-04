@@ -148,7 +148,13 @@ def testddqn():
               ' memory size', ddqn_agent.memory.mem_cntr % ddqn_agent.memory.mem_size)   
 
 def testTrain():
-    dqn.train()
+    curves = []
+    
+    curves += dqn.train()
+    curLabel = "Reward"
+    dqn.plot_arrays(curves, 'b', curLabel)
+
+
     
 def keyBoardDriveControl():
     running = True
@@ -186,5 +192,5 @@ def keyBoardDriveControl():
 
 if __name__ == "__main__":
     #keyBoardDriveControl()
-    #testTrain()
-    testddqn()
+    testTrain()
+    #testddqn()

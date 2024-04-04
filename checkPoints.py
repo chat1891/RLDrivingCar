@@ -14,7 +14,7 @@ class CheckPoint:
         #pygame.draw.line(win, (0,0,255), (477, 194), (489, 308), 3)
         if self.isTriggered:
             pygame.draw.line(win, (255,0,0), (self.x1, self.y1), (self.x2, self.y2), 2)
-
+    
 
 def getCheckPoints():
     checkPoints=[]
@@ -220,4 +220,6 @@ def getCheckPoints():
     #checkPoints[len(checkPoints)-1].isTriggered = True
     
     return checkPoints
+
+
     

@@ -5,6 +5,7 @@ import torch
 import tqdm
 import matplotlib.pyplot as plt
 import RacingEnvironment
+import json
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -69,7 +70,7 @@ class DQN_test(object):
             torch.nn.Linear(self.HIDDEN, self.HIDDEN), torch.nn.ReLU(),
             torch.nn.Linear(self.HIDDEN, self.ACT_N)
         ).to(self.DEVICE)
-        OPT = torch.optim.Adam(self.Q.parameters(), lr = self.LEARNING_RATE)
+        OPT = torch.optim.Adam(Q.parameters(), lr = self.LEARNING_RATE)
         return env, test_env, buf, Q, Qt, OPT
         #return self.gameEnv, buf, Q, Qt, OPT
 
@@ -157,38 +158,43 @@ class DQN_test(object):
         print("Training:")
         pbar = tqdm.trange(self.EPISODES)
         for epi in pbar:
-            done = False
-            env.reset()
-            while not done:
-                # Play an episode and log episodic reward
-                S, A, R = utils.envs.play_episode_rb(env, self.policy, buf)
-                #env.reset()
-                obs, reward, done = env.step(0)
+            #done = False
+            #obs = env.reset()
+        #while not done:
+            # Play an episode and log episodic reward
+            S, A, R = utils.envs.play_episode_rb(env, self.policy, buf)
+            #env.reset()
+            #obs, reward, done = env.step(0)
 
-                # Train after collecting sufficient experience
-                if epi >= self.TRAIN_AFTER_EPISODES:
+            # Train after collecting sufficient experience
+            if epi >= self.TRAIN_AFTER_EPISODES:
 
-                    # Train for TRAIN_EPOCHS
-                    for tri in range(self.TRAIN_EPOCHS):
-                        self.update_networks(epi, buf, Q, Qt, OPT)
+                # Train for TRAIN_EPOCHS
+                for tri in range(self.TRAIN_EPOCHS):
+                    self.update_networks(epi, buf, Q, Qt, OPT)
 
-                # Evaluate for TEST_EPISODES number of episodes
-                Rews = []
-                for epj in range(self.TEST_EPISODES):
-                    S, A, R = utils.envs.play_episode(test_env, self.policy, render = True)
-                    Rews += [sum(R)]
-                testRs += [sum(Rews)/self.TEST_EPISODES]
-                #print("---------------testRs: " + str(testRs))
+            # Evaluate for TEST_EPISODES number of episodes
+            Rews = []
+            for epj in range(self.TEST_EPISODES):
+                S, A, R = utils.envs.play_episode(test_env, self.policy, render = True)
+                Rews += [sum(R)]
+            testRs += [sum(Rews)/self.TEST_EPISODES]
+            #print("---------------testRs: " + str(testRs))
 
-                # Update progress bar
-                last25testRs += [sum(testRs[-25:])/len(testRs[-25:])]
-                pbar.set_description("R25(%g)" % (last25testRs[-1]))
-                #print("---------------------last25testRs[-1]: " + str(last25testRs[-1]))
-                env.render()  
+            # Update progress bar
+            last25testRs += [sum(testRs[-25:])/len(testRs[-25:])]
+            pbar.set_description("R25(%g)" % (last25testRs[-1]))
+            #print("---------------------last25testRs[-1]: " + str(last25testRs[-1]))
+            env.render()  
             if epi%10==0 and epi>10:
                 self.save_model('dqn_model.pth')
+                with open('last25testRs.json', 'w') as f:
+                    json.dump(last25testRs, f)
 
         # Close progress bar, environment
+        # save the last time
+        with open('last25testRs.json', 'w') as f:
+            json.dump(last25testRs, f)
         pbar.close()
         print("Training finished!")
 
@@ -196,12 +202,18 @@ class DQN_test(object):
 
     # Plot mean curve and (mean-std, mean+std) curve with some transparency
     # Clip the curves to be between 0, 200
-    def plot_arrays(vars, color, label):
-        mean = np.mean(vars, axis=0)
+    def plot_arrays(self,vars, color, label):
+        mean = vars
         std = np.std(vars, axis=0)
         plt.plot(range(len(mean)), mean, color=color, label=label)
         plt.fill_between(range(len(mean)), np.maximum(mean-std, 0), np.minimum(mean+std,200), color=color, alpha=0.3)
+        plt.savefig('last25Res.png')
 
+    def loadLast25TestRs():
+        with open('last25testRs.json', 'r') as f:
+            last25testRs = json.load(f)
+            return last25testRs
+        return None
     # def runTest(self):
     #     defaultTargetUpdateFreq = 10
     #     TARGET_UPDATE_FREQ_LIST = [1,5,10,50,100]

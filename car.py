@@ -9,6 +9,7 @@ BOUNDARY_COLOR = (0, 0, 0)
 CHECKPOINT_REWARD=1
 ALIVE_REWARD=0
 DIE_PENALTY=-1
+FINALGOAL_REWARD = 10
 
 #coordinates
 class Coord:
@@ -71,7 +72,7 @@ class Car:
         self.angle = math.radians(0)
         self.drivingAngle = self.angle
         self.velocity = 0
-        self.deltaVelocity = 0.7
+        self.deltaVelocity = 1
         self.maxVelocity = 15
         
         self.velocityX = 0
@@ -130,7 +131,7 @@ class Car:
         #     self.velocity = self.velocity+deltaVelo
     
     def turn(self, turnDir):
-        self.drivingAngle -= math.radians(10) * turnDir
+        self.drivingAngle -= math.radians(5) * turnDir
         
         
     def action(self,actionChoice):
@@ -312,6 +313,12 @@ class Car:
         self.topRight = self.corner4 #point top
         
         self.isAlive = True
+
+    def reachedEndGoal(self, endGoal):
+        if self.calScore(endGoal):
+            return True
+        return False
+
         
         
             

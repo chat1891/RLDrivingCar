@@ -38,11 +38,16 @@ class RacingEnvironment:
         reward = car.ALIVE_REWARD
 
         idx = 1
+        endGoalCheckPoint = self.checkPoints[len(self.checkPoints)-1]
         for checkpoint in self.checkPoints:
             
             if idx >= len(self.checkPoints):
                 idx = 1
             if checkpoint.isTriggered:
+                if self.car.reachedEndGoal(endGoalCheckPoint):
+                    done=True
+                    reward += car.FINALGOAL_REWARD
+                    break
                 if self.car.calScore(checkpoint):
                     checkpoint.isTriggered = False
                     self.checkPoints[idx].isTriggered = True
