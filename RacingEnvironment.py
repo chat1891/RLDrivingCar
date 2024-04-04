@@ -77,18 +77,18 @@ class RacingEnvironment:
         minRay =min(new_state[:-1])
         if maxRay > 0.985:
             reward +=car.CLOST_TO_WALL_PENALTY
-            print("too close to wall 15: "+str(maxRay))
+            #print("too close to wall 15: "+str(maxRay))
         #if the car too close to the wall -> 15, give -0.25 penalty
         #(300-20)/300    
         if maxRay > 0.98:
             reward +=car.CLOST_TO_WALL_PENALTY_2
-            print("too close to wall 20: "+str(maxRay))
+            #print("too close to wall 20: "+str(maxRay))
         
         #(1000-40)/1000
         #[:-1] eliminate the velocity, only consider min of ray casts
         if maxRay < 0.96:
             reward +=car.FAR_TO_WALL_REWARD
-            print("FAR to wall " + str(maxRay))
+            #print("FAR to wall " + str(maxRay))
             
        
         if done:
