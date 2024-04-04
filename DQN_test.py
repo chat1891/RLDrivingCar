@@ -48,8 +48,8 @@ class DQN_test(object):
     def create_everything(self,seed):
 
         # utils.seed.seed(seed)
-        env1 = gym.make("CartPole-v0")
-        env1.reset()
+        # env1 = gym.make("CartPole-v0")
+        # env1.reset()
         # env.seed(seed)
         # test_env = gym.make("CartPole-v0")
         # test_env.seed(10+seed)
@@ -143,6 +143,8 @@ class DQN_test(object):
     # Play episodes
     # Training function
     def train(self,seed=1):
+        loss_history = []
+        reward_history = []
 
         global EPSILON, Q
         #print("Seed=%d" % seed)
@@ -165,14 +167,17 @@ class DQN_test(object):
             S, A, R = utils.envs.play_episode_rb(env, self.policy, buf)
             #env.reset()
             #obs, reward, done = env.step(0)
+            episode_loss =0
 
             # Train after collecting sufficient experience
             if epi >= self.TRAIN_AFTER_EPISODES:
 
                 # Train for TRAIN_EPOCHS
                 for tri in range(self.TRAIN_EPOCHS):
-                    self.update_networks(epi, buf, Q, Qt, OPT)
-
+                    loss = self.update_networks(epi, buf, Q, Qt, OPT)
+                    episode_loss +=loss
+                    
+                loss_history.append(episode_loss / self.TRAIN_EPOCHS)
             # Evaluate for TEST_EPISODES number of episodes
             Rews = []
             for epj in range(self.TEST_EPISODES):
@@ -190,11 +195,15 @@ class DQN_test(object):
                 self.save_model('dqn_model.pth')
                 with open('last25testRs.json', 'w') as f:
                     json.dump(last25testRs, f)
+                with open('loss_history.json', 'w') as f:
+                    json.dump(loss_history, f)
 
         # Close progress bar, environment
         # save the last time
         with open('last25testRs.json', 'w') as f:
             json.dump(last25testRs, f)
+        with open('loss_history.json', 'w') as f:
+            json.dump(loss_history, f)
         pbar.close()
         print("Training finished!")
 
@@ -207,7 +216,7 @@ class DQN_test(object):
         std = np.std(vars, axis=0)
         plt.plot(range(len(mean)), mean, color=color, label=label)
         plt.fill_between(range(len(mean)), np.maximum(mean-std, 0), np.minimum(mean+std,200), color=color, alpha=0.3)
-        plt.savefig('last25Res.png')
+        plt.savefig('last25Res_test.png')
 
     def loadLast25TestRs():
         with open('last25testRs.json', 'r') as f:
@@ -234,3 +243,5 @@ class DQN_test(object):
         Q.load_state_dict(torch.load(filepath, map_location=self.DEVICE))
         #self.update(self.Qt, self.Q)
         print(f'Model loaded from {filepath}')
+        
+

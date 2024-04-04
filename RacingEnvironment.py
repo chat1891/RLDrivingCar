@@ -26,9 +26,14 @@ class RacingEnvironment:
         self.observation_space = None
         self.game_reward = 0
         self.score = 0
+        
+        self.carInitX=417
+        self.carInitY=502
  
-        self.car = car.Car(417, 502,self.raceTrack)
+        self.car = car.Car(self.carInitX, self.carInitY,self.raceTrack)
         self.checkPoints = checkPoints.getCheckPoints()
+        
+        self.font = pygame.font.Font(pygame.font.get_default_font(), 36)
         
     def step(self, action):
 
@@ -65,6 +70,18 @@ class RacingEnvironment:
 
         new_state = self.car.rayCast()
         
+        #if the car too close to the wall -> 10, give -0.5 penalty
+        #(1000-15)/1000
+        if max(new_state) > 0.985:
+            reward +=car.CLOST_TO_WALL_PENALTY
+            #print("too close to wall 10")
+        #if the car too close to the wall -> 15, give -0.25 penalty
+        #(1000-20)/1000    
+        if max(new_state) > 0.98:
+            reward +=car.CLOST_TO_WALL_PENALTY_2
+            #print("too close to wall 20")
+            
+        
         if done:
             new_state = None
 
@@ -92,7 +109,13 @@ class RacingEnvironment:
             for cp in self.checkPoints:
                 cp.draw(self.gameScreen)
         self.car.draw4corners(self.gameScreen)
+        
+        scoreText = self.font.render(f'Score {self.car.score}', True, pygame.Color('green'))
+        self.gameScreen.blit(scoreText, dest=(0, 0))
+        
+        
         self.clock.tick(self.fps)
+        
         pygame.display.update()
         #pygame.display.flip()
         
@@ -115,7 +138,7 @@ class RacingEnvironment:
         
     def reset(self):
         self.gameScreen.fill((0, 0, 0))
-        self.car = car.Car(417, 530,self.raceTrack)
+        self.car = car.Car(self.carInitX, self.carInitY,self.raceTrack)
         self.checkPoints = checkPoints.getCheckPoints()
         self.game_reward = 0
         
@@ -124,7 +147,7 @@ class RacingEnvironment:
     
     def FirstStep(self):
         self.gameScreen.fill((0, 0, 0))
-        self.car = car.Car(417, 530,self.raceTrack)
+        self.car = car.Car(self.carInitX, self.carInitY,self.raceTrack)
         self.checkPoints = checkPoints.getCheckPoints()
         self.game_reward = 0
         obs, reward, done = self.step(0)

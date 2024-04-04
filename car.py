@@ -10,6 +10,8 @@ CHECKPOINT_REWARD=1
 ALIVE_REWARD=0
 DIE_PENALTY=-1
 FINALGOAL_REWARD = 10
+CLOST_TO_WALL_PENALTY=0.5
+CLOST_TO_WALL_PENALTY_2=0.25
 
 #coordinates
 class Coord:
@@ -227,7 +229,7 @@ class Car:
             # pt = math.floor(x1 + t * (x2 - x1)), math.floor(y1 + t * (y2 - y1))
             # d = getDistance(Coord(self.x, self.y), Coord(pt[0], pt[1]))
             # if d < 20:
-                #self.score+= CHECKPOINT_REWARD
+            self.score+= CHECKPOINT_REWARD
             return True
         else:
             return False
@@ -246,6 +248,7 @@ class Car:
             distances.append((1000-curDistance)/1000)
         
         distances.append(self.velocity / self.maxVelocity)
+             
         return distances
         #ray1 = (self.x, self.y, self.drivingAngle)
         #ray2 = Ray(self.x, self.y, self.soll_angle - math.radians(30))
