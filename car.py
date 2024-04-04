@@ -10,8 +10,9 @@ CHECKPOINT_REWARD=1
 ALIVE_REWARD=0
 DIE_PENALTY=-1
 FINALGOAL_REWARD = 10
-CLOST_TO_WALL_PENALTY=-0.5
-CLOST_TO_WALL_PENALTY_2=-0.25
+CLOST_TO_WALL_PENALTY=-0.75
+CLOST_TO_WALL_PENALTY_2=-0.5
+FAR_TO_WALL_REWARD=0.5
 
 #coordinates
 class Coord:
@@ -133,7 +134,7 @@ class Car:
         #     self.velocity = self.velocity+deltaVelo
     
     def turn(self, turnDir):
-        self.drivingAngle -= math.radians(2.5) * turnDir
+        self.drivingAngle -= math.radians(2) * turnDir
         
         
     def action(self,actionChoice):
@@ -236,7 +237,7 @@ class Car:
     
     def rayCast(self):
         self.rayCasts=[]
-        rayAngles = [15,-15,35,-35,55,-55,-90,90,120,-120]
+        rayAngles = [5,-5,15,-15,35,-35,55,-55,-90,90,120,-120]
         for deg in rayAngles:
             self.CalculateRayCast(deg,self.raceTrackMap)
         

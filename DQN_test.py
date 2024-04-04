@@ -16,7 +16,7 @@ class DQN_test(object):
     SEEDS = [1,2]
     t = utils.torch.TorchHelper()
     DEVICE = t.device
-    OBS_N = 11               # State space size, number of ray + velocity
+    OBS_N = 13               # State space size, number of ray + velocity
     ACT_N = 5               # Action space size
     MINIBATCH_SIZE = 10     # How many examples to sample per train step
     GAMMA = 0.99            # Discount factor in episodic reward objective

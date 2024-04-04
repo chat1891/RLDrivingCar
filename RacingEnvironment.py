@@ -71,22 +71,30 @@ class RacingEnvironment:
         new_state = self.car.rayCast()
         
         #if the car too close to the wall -> 10, give -0.5 penalty
-        #(1000-15)/1000
-        if max(new_state) > 0.985:
+        #(300-15)/300
+        #max ray is the ray with smallest distance
+        maxRay = max(new_state[:-1])
+        minRay =min(new_state[:-1])
+        if maxRay > 0.985:
             reward +=car.CLOST_TO_WALL_PENALTY
-            #print("too close to wall 10")
+            print("too close to wall 15: "+str(maxRay))
         #if the car too close to the wall -> 15, give -0.25 penalty
-        #(1000-20)/1000    
-        if max(new_state) > 0.98:
+        #(300-20)/300    
+        if maxRay > 0.98:
             reward +=car.CLOST_TO_WALL_PENALTY_2
-            #print("too close to wall 20")
-            
+            print("too close to wall 20: "+str(maxRay))
         
+        #(1000-40)/1000
+        #[:-1] eliminate the velocity, only consider min of ray casts
+        if maxRay < 0.96:
+            reward +=car.FAR_TO_WALL_REWARD
+            print("FAR to wall " + str(maxRay))
+            
+       
         if done:
             new_state = None
 
         return new_state, reward, done
-    
     
     def render(self):
         
