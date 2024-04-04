@@ -131,7 +131,7 @@ class Car:
         #     self.velocity = self.velocity+deltaVelo
     
     def turn(self, turnDir):
-        self.drivingAngle -= math.radians(5) * turnDir
+        self.drivingAngle -= math.radians(2.5) * turnDir
         
         
     def action(self,actionChoice):
@@ -146,7 +146,7 @@ class Car:
             self.acceleration(self.deltaVelocity)
             self.turn(1)
         elif actionChoice == 4:
-            self.acceleration(-self.deltaVelocity)
+            self.acceleration(self.deltaVelocity)
             self.turn(-1)
         # elif actionChoice == 5:
         #     self.acceleration(-self.deltaVelocity)

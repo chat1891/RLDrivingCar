@@ -27,7 +27,7 @@ class RacingEnvironment:
         self.game_reward = 0
         self.score = 0
  
-        self.car = car.Car(417, 530,self.raceTrack)
+        self.car = car.Car(417, 502,self.raceTrack)
         self.checkPoints = checkPoints.getCheckPoints()
         
     def step(self, action):
@@ -52,7 +52,7 @@ class RacingEnvironment:
                     checkpoint.isTriggered = False
                     self.checkPoints[idx].isTriggered = True
                     reward += car.CHECKPOINT_REWARD
-                    print("reward:" + str(reward))
+                    #print("reward:" + str(reward))
                     break
 
             idx = idx + 1
