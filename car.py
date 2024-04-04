@@ -14,6 +14,8 @@ CLOST_TO_WALL_PENALTY=-0.75
 CLOST_TO_WALL_PENALTY_2=-0.5
 FAR_TO_WALL_REWARD=0.5
 
+LONGEST_RAY = 350
+
 #coordinates
 class Coord:
     def __init__(self,ix,iy):
@@ -237,9 +239,10 @@ class Car:
     
     def rayCast(self):
         self.rayCasts=[]
-        rayAngles = [5,-5,15,-15,35,-35,55,-55,-90,90,120,-120]
+        rayAngles = [5,-5,15,-15,35,-35,55,-55,-90,90,120,-120,135,-135,150,-150]
         for deg in rayAngles:
-            self.CalculateRayCast(deg,self.raceTrackMap)
+            actualAngle = self.drivingAngle+deg
+            self.CalculateRayCast( actualAngle,self.raceTrackMap)
         
         #distances are observation of the car, it is state
         distances = []
@@ -263,7 +266,7 @@ class Car:
         
         # While not hitting the boarder, set max =300
         # the ray goes further and further
-        while not raceTrack.get_at((ray_x, ray_y)) == BOUNDARY_COLOR and len < 350:
+        while not raceTrack.get_at((ray_x, ray_y)) == BOUNDARY_COLOR and len < LONGEST_RAY:
             len = len + 1
             ray_x = int(self.position.x + math.cos(math.radians(360 - curAngle)) * len)
             ray_y = int(self.position.y + math.sin(math.radians(360 - curAngle)) * len)
