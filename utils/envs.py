@@ -39,9 +39,10 @@ def play_episode_rb(env, policy, buf):
         rewards.append(reward)
 
         #add counter to prevent is sping at one position not moving forward
-        if reward==0:
+        #prevent it is rorating but not hiting checkpoints
+        if reward<0.75:
             counterToDie+=1
-            if counterToDie>100:
+            if counterToDie>200:
                 done=True
         else:
             counterToDie=0 
