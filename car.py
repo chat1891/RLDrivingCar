@@ -240,8 +240,10 @@ class Car:
     def rayCast(self):
         self.rayCasts=[]
         rayAngles = [5,-5,15,-15,35,-35,55,-55,-90,90,120,-120,135,-135,150,-150]
+        #rayAngles = [-90,90]
+        
         for deg in rayAngles:
-            actualAngle = self.drivingAngle+deg
+            actualAngle = deg
             self.CalculateRayCast( actualAngle,self.raceTrackMap)
         
         #distances are observation of the car, it is state
@@ -260,7 +262,9 @@ class Car:
     
     def CalculateRayCast(self,dirDegree,raceTrack):
         len =0
-        curAngle = self.angle + dirDegree
+        #curAngle = self.angle + dirDegree
+        driveAngleDeg = math.degrees( self.drivingAngle)
+        curAngle =360-driveAngleDeg+dirDegree
         ray_x = int(self.position.x + math.cos(math.radians(360 - curAngle)) * len)
         ray_y = int(self.position.y + math.sin(math.radians(360 - curAngle)) * len)
         
