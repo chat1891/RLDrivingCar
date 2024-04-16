@@ -1,6 +1,7 @@
 import pygame
 import car
 import checkPoints
+import math
 
 class RacingEnvironment:
     def __init__(self):
@@ -35,13 +36,14 @@ class RacingEnvironment:
         
         self.font = pygame.font.Font(pygame.font.get_default_font(), 36)
         
+        
     def step(self, action):
 
         done = False
         self.car.action(action)
         self.car.update()
         reward = car.ALIVE_REWARD
-
+            
         idx = 1
         endGoalCheckPoint = self.checkPoints[len(self.checkPoints)-1]
         for checkpoint in self.checkPoints:
@@ -93,7 +95,10 @@ class RacingEnvironment:
         if maxRay < percent_40:
             reward +=car.FAR_TO_WALL_REWARD
             # print("FAR to wall " + str(maxRay))
-            
+    
+        #check if car is rotating 360 degresss
+        if math.degrees(self.car.drivingAngle) >1000 or math.degrees(self.car.drivingAngle)<-1000:
+            reward +=car.ROTATE_PENALTY
        
         if done:
             new_state = None
