@@ -142,14 +142,12 @@ class A2C:
             state = env.reset()
             done = False
 
-            while not done:
+            while not done:                
                 action = self.policy(env, state)
                 next_state, reward, done = env.step(action)
                 
                 if next_state is None:
                     break
-
-                env.render() 
 
                 states.append(state)
                 actions.append(action)
@@ -176,7 +174,7 @@ class A2C:
 
             Rews = []
             for epj in range(self.TEST_EPISODES):
-                state = test_env.reset()
+                state = test_env.reset(render=True)
                 done = False
                 ep_reward = 0
                 
@@ -196,7 +194,6 @@ class A2C:
 
             pbar.set_description("R25(%g)" % (last25testRs[-1]))
             
-
             env.render()
 
             if epi % 10 == 0 and epi > 10:
@@ -234,7 +231,8 @@ class A2C:
         print(f'Model saved to {filepath}')
 
     def load_model(self, filepath='a2c_model.pth'):
-        checkpoint = torch.load(filepath, map_location=self.DEVICE)
+        # checkpoint = torch.load(filepath, map_location=self.DEVICE)
         self.actor_critic.load_state_dict(torch.load(filepath, map_location=self.DEVICE))
+        # self.actor_critic.load_state_dict(checkpoint)
         print(f'Model loaded from {filepath}')
 
